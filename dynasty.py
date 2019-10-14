@@ -30,20 +30,8 @@ def startswith(needle, haystack):
     return True
 
 
-def dynasty(image):
-    client = docker.from_env()
-    image = client.images.get(image)
-    for k,v  in image.attrs.items():
-        print("\t", k, v)
-    d = []
-    for h in image.history():
-        if h['Tags'] is not None:
-            d.append(h['Tags'])
-    return d
-
-
 if __name__ == '__main__':
     import sys
-    #print(dynasty(sys.argv[1]))
-    d = Dynasty('bearstech/*')
-    print(d.ancestor(sys.argv[1]))
+    image = sys.argv[1]
+    d = Dynasty('%s/*' % image.split('/')[0])
+    print(d.ancestor(image))
