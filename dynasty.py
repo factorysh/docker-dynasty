@@ -15,10 +15,9 @@ class Dynasty:
     def ancestor(self, name):
         image = self.client.images.get(name)
         l = image.attrs['RootFS']['Layers']
-        a = []
-        for id, layers in self.layers.items():
-            if startswith(layers, l):
-                a.append((len(layers), self.all[id].tags))
+        a = [(len(layers), self.all[id].tags)
+             for id, layers in self.layers.items()
+             if startswith(layers, l)]
         return [i[1] for i in sorted(a, key=lambda x: x[0])]
         # layers should be indexed as a Trie
 
