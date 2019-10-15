@@ -23,6 +23,8 @@ class Dynasty:
 
 
 def startswith(needle, haystack):
+    if len(needle) > len(haystack):
+        return False
     for a, n in enumerate(needle):
         if n != haystack[a]:
             return False
