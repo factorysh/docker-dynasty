@@ -17,7 +17,7 @@ class Dynasty:
         l = image.attrs['RootFS']['Layers']
         a = [(len(layers), self.all[id].tags)
              for id, layers in self.layers.items()
-             if startswith(layers, l)]
+             if startswith(layers, l) and id != image.id]
         return [i[1] for i in sorted(a, key=lambda x: x[0])]
         # layers should be indexed as a Trie
 
