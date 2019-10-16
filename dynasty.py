@@ -4,6 +4,7 @@ import docker
 
 
 class Layers:
+    "Encode layers a sortable string"
     def __init__(self):
         self._data = dict()
 
@@ -13,20 +14,21 @@ class Layers:
         return self._data[layer]
 
 
-def encode(n: int):
-    return ("".join(chr(a +97) for a in num(n)) + "___")[:3]
+def encode(n: int, size: int = 3):
+    "Convert an int to a readable string, with a fixed size"
+    return ("".join(chr(a +97) for a in num(n)) + size*"_")[:size]
 
 
 def num(n: int, r=None):
+    "Convert an int to base 26, with latin alphabet"
     if r is None:
         assert type(n) == int, type(n)
         r = []
     d = n // 26
     r.append(n % 26)
     if d > 0:
-        return num(d, r)
+        return num(d, r) # recusivity rulez
     return r
-
 
 
 class Dynasty:
