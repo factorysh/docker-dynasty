@@ -28,6 +28,7 @@ def num(n: int, r=None):
     return r
 
 
+
 class Dynasty:
     def __init__(self, repo):
         self.client = docker.from_env()
@@ -35,11 +36,12 @@ class Dynasty:
         self.all = dict()
         self._layers = Layers()
         for image in self.client.images.list(name=repo):
-            self.layers[image.id] = " ".join(self._layers.layer(a)
-                                            for a
-                                            in image.attrs['RootFS']['Layers'])
+            self.layers[image.id] = self.encode_layers(
+                image.attrs['RootFS']['Layers'])
             self.all[image.id] = image
-        #print(self.layers)
+
+    def encode_layers(self, layers):
+        return " ".join(self._layers.layer(a) for a in layers)
 
     def tree(self):
         for id, layers in sorted(self.layers.items(), key=lambda a: a[1]):
@@ -47,34 +49,28 @@ class Dynasty:
 
     def ancestor(self, name):
         image = self.client.images.get(name)
-        l = image.attrs['RootFS']['Layers']
+        l = self.encode_layers(image.attrs['RootFS']['Layers'])
         a = [(len(layers), self.all[id].tags)
              for id, layers in self.layers.items()
-             if startswith(layers, l) and id != image.id]
+             if l.startswith(layers) and id != image.id]
         return [i[1] for i in sorted(a, key=lambda x: x[0])]
-        # layers should be indexed as a Trie
 
     def descendant(self, name):
         image = self.client.images.get(name)
-        l = image.attrs['RootFS']['Layers']
+        l = self.encode_layers(image.attrs['RootFS']['Layers'])
         return [self.all[id].tags
                 for id, layers in self.layers.items()
-                if startswith(l, layers) and id != image.id]
-
-
-def startswith(needle, haystack):
-    if len(needle) > len(haystack):
-        return False
-    for a, n in enumerate(needle):
-        if n != haystack[a]:
-            return False
-    return True
+                if layers.startswith(l) and id != image.id]
 
 
 if __name__ == '__main__':
     import sys
     image = sys.argv[1]
     d = Dynasty('%s/*' % image.split('/')[0])
-    d.tree()
-    #print("Ancestor : ", d.ancestor(image))
-    #print("Descendant : ", d.descendant(image))
+    #d.tree()
+    print("Ancestor")
+    for a in d.ancestor(image):
+        print("\t", a)
+    print("Descendant")
+    for a in d.descendant(image):
+        print("\t", a)
