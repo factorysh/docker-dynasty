@@ -32,8 +32,11 @@ def num(n: int, r=None):
 
 
 class Dynasty:
-    def __init__(self, repo):
-        self.client = docker.from_env()
+    def __init__(self, repo, client=None):
+        if client is None:
+            self.client = docker.from_env()
+        else:
+            self.client = client
         self.layers = dict()
         self.all = dict()
         self._layers = Layers()
