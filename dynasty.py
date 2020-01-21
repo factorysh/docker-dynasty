@@ -32,19 +32,15 @@ def num(n: int, r=None):
 
 
 class Dynasty:
-    def __init__(self, repo, client=None):
-        if "/" not in repo:
-            repo = "%s/*" % repo
+    def __init__(self, client=None):
         if client is None:
             self.client = docker.from_env()
         else:
             self.client = client
-        if not repo.endswith("/*"): # it's not a repo
-            repo = "%s/*" % repo.split("/")[0]
         self.layers = dict()
         self.all = dict()
         self._layers = Layers()
-        for image in self.client.images.list(name=repo):
+        for image in self.client.images.list():  # all available images
             self.layers[image.id] = self.encode_layers(
                 image.attrs['RootFS']['Layers'])
             self.all[image.id] = image
@@ -75,7 +71,7 @@ class Dynasty:
 if __name__ == '__main__':
     import sys
     image = sys.argv[1]
-    d = Dynasty(image)
+    d = Dynasty()
     #d.tree()
     print("Ancestor")
     for a in d.ancestor(image):
