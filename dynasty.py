@@ -5,6 +5,7 @@ import docker
 
 class Layers:
     "Encode layers a sortable string"
+
     def __init__(self):
         self._data = dict()
 
@@ -16,7 +17,7 @@ class Layers:
 
 def encode(n: int, size: int = 3):
     "Convert an int to a readable string, with a fixed size"
-    return ("".join(chr(a +97) for a in num(n)) + size*"_")[:size]
+    return ("".join(chr(a + 97) for a in num(n)) + size * "_")[:size]
 
 
 def num(n: int, r=None):
@@ -27,7 +28,7 @@ def num(n: int, r=None):
     d = n // 26
     r.append(n % 26)
     if d > 0:
-        return num(d, r) # recusivity rulez
+        return num(d, r)  # recusivity rulez
     return r
 
 
@@ -41,8 +42,7 @@ class Dynasty:
         self.all = dict()
         self._layers = Layers()
         for image in self.client.images.list():  # all available images
-            self.layers[image.id] = self.encode_layers(
-                image.attrs['RootFS']['Layers'])
+            self.layers[image.id] = self.encode_layers(image.attrs["RootFS"]["Layers"])
             self.all[image.id] = image
 
     def encode_layers(self, layers):
@@ -54,25 +54,30 @@ class Dynasty:
 
     def ancestor(self, name):
         image = self.client.images.get(name)
-        l = self.encode_layers(image.attrs['RootFS']['Layers'])
-        a = [(len(layers), self.all[id].tags)
-             for id, layers in self.layers.items()
-             if l.startswith(layers) and id != image.id]
+        l = self.encode_layers(image.attrs["RootFS"]["Layers"])
+        a = [
+            (len(layers), self.all[id].tags)
+            for id, layers in self.layers.items()
+            if l.startswith(layers) and id != image.id
+        ]
         return [i[1] for i in sorted(a, key=lambda x: x[0])]
 
     def descendant(self, name):
         image = self.client.images.get(name)
-        l = self.encode_layers(image.attrs['RootFS']['Layers'])
-        return [self.all[id].tags
-                for id, layers in self.layers.items()
-                if layers.startswith(l) and id != image.id]
+        l = self.encode_layers(image.attrs["RootFS"]["Layers"])
+        return [
+            self.all[id].tags
+            for id, layers in self.layers.items()
+            if layers.startswith(l) and id != image.id
+        ]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     image = sys.argv[1]
     d = Dynasty()
-    #d.tree()
+    # d.tree()
     print("Ancestor")
     for a in d.ancestor(image):
         print("\t", a)

@@ -13,4 +13,3 @@ def test_encode():
     assert dynasty.encode(25) == "z__"
     assert dynasty.encode(26) == "ab_"
     assert dynasty.encode(53) == "bc_"
-
