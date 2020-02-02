@@ -75,12 +75,14 @@ class Dynasty:
 if __name__ == "__main__":
     import sys
 
-    image = sys.argv[1]
     d = Dynasty()
-    # d.tree()
-    print("Ancestor")
-    for a in d.ancestor(image):
-        print("\t", a)
-    print("Descendant")
-    for a in d.descendant(image):
-        print("\t", a)
+    if len(sys.argv) == 1:
+        d.tree()
+    else:
+        image = sys.argv[1]
+        print("Ancestor")
+        for a in d.ancestor(image):
+            print("\t", a)
+        print("Descendant")
+        for a in d.descendant(image):
+            print("\t", a)
